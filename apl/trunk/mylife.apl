@@ -5,6 +5,7 @@ mylife←{((⍵×9)+⊃+/+/¯1 0 1∘.⊖¯1 0 1∘.⌽⊂⍵)∊12 13 3}
 hash←{256|⌈{⍵+○⍺}/,⍵}
 cache←256 2⍴0
 cached←{i←hash ⍺,⍵⋄ cache[i;0]≡⍺ ⍵:cache[i;1]⋄ res←⍺⍶⍵⋄ cache[i;0]←⍺ ⍵⋄ cache[i;1]←res⋄ res}
+⍝ cacheindex — хеш-таблиця, що містить списки захешованих ⍺ для кожної ⍵ ....
 
 
 ⍝ NGN APL:
@@ -19,7 +20,7 @@ play←{map←⍵ ⋄ {⊂'.≢'[zborder (inflife⍣⍵) map]}¨⍺}
 ⎕io←0
 rep←{⍺>0:⍺⍺((⍺-1)⍺⍺ ∇∇ ⍵)⋄ ⍵} ⍝ замінник відсутнього в цій реалізації оператора ⍣
 ⍝ N f rep A ←→ (f⍣N)A
-zborder←{4 {⍉⊖{(- (↑⌈/⍵) 0+⍴⍵)↑⍵}{(~↑⌈/⍵) 0↓⍵}⍵} rep ⍵}
+zborder←{4 {⍉⊖{(- (↑⌈/⍵) 0+⍴⍵)↑⍵}{(~↑⌈/⍵) 0↓⍵}⍵} rep (3 3⌈(⍴⍵))↑⍵}
 inflife←{mylife zborder ⍵}
 play←{map←⍵ ⋄ {⊂'∘≢'[zborder ⍵ inflife rep map]}¨⍺}
 
@@ -31,6 +32,24 @@ play←{(⊂⍵)∘.{⊂'.≢'[zborder (inflife⍣⍵) ⊃⍺]}⍺}
 
 ⍝ конструктори фігур:
 join←{max←(⍴⍺)⌈⍴⍵⋄(max↑⍺)∨max↑⍵}
+shift←{(- ⍺+⍴⍵)↑⍵}
+grow←{(⍺+⍴⍵)↑⍵}
+
+symmv←⊢⍪⊖
+symmh←⊢,⌽
+symm4←symmv symmh
+oddv←{(y x)←(⍴⍵)÷¯2⋄ y⊖1 0↓y⊖⍵}
+oddh←{(y x)←(⍴⍵)÷¯2 ⋄ x⌽0 1↓x⌽⍵}
+odd4←{(y x)←(⍴⍵)÷¯2 ⋄ x⌽y⊖1 1↓x⌽y⊖⍵}
+oddsymmv←oddv symmv
+oddsymmh←oddh symmh
+oddsymm4←odd4 symm4
+symmd←⍉join⊢
+dsymmv←⌽⍪⊖
+dsymmh←⊖,⌽
+rsymm←{dsymmv(⊢,(⍉⊖))(¯1 1×(⌽⍴⍵)⌈⍴⍵)↑⍵}
+stair←{(n y x)←⍺ ⋄ n≤1:⍵ ⋄ ⍵ join y x shift (n-1) y x∇⍵}
+
 eight←{{(⍉⍵),⍉⌽⍵}(⍵ ⍵⍴1),⍵ ⍵⍴0}
 
 ⍝ допоміжні прийоми:
@@ -71,10 +90,16 @@ gun←⊃(0 0 0 0 1 1)(0 0 0 0 1 1)0 0 0 0 0 0 0 0(0 0 0 1 1 1)(0 0 1 0 0 0 1)(0
 k←⊃(1 0 1)(1 1)(1 0 1)
 ⍝ 1 10⍴1 ⍝ після двох ходів перетворюється на осцилятор з періодом 15
 prepulsar←⊃9⍴6↑3⍴(1 1 1)(1 0 1)
+prepulsar1←⊃0(11⍴6↑5⍴1)
 
 clock←⊃(0 0 1)(1 1)(0 0 1 1)(0 1)
 biclock←clock join (-3 3+⍴clock)↑clock
 
 ⍝ ⊃(⊢,⌽)(1 1)(1 1)0(1 1 0 1 1)
 queenbee←⊃(1 1 0 0 0 1 1)(0 0 1 1 1)(0 1 0 0 0 1)(0 0 1 0 1)(0 0 0 1)
+gliderL←⊃1(1 0 1)(1 1)
+gliderY←⊃(1 0 1)(1 1)(0 1)
 
+⍝ (11 3⍴+⍳99) play ⊃(0 0 1)0(1 0 1 1)(1 1 0 1)0 (0 1)
+⍝ (14 4⍴+⍳99) play ⊃0(1 1 1 0 1 1 1 1 1 0 1 1 1)
+⍝ 4 4⍴(16⍴2)⊤8437 ⍝ або 8446
